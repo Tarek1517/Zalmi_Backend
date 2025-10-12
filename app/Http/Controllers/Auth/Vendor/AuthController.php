@@ -32,16 +32,13 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        return response()->json([
-            'vendor' => [
-                'id' => $vendor->id,
-                'name' => $vendor->name,
-                'phone' => $vendor->phone,
-                'shop_id' => $vendor->shop->id,
-            ],
-            'token' => $vendor->createToken('vendor-token', ['role-vendor'])->plainTextToken,
-        ]);
+
+        // Add token to the vendor object
+        $vendor->token = $vendor->createToken('vendor-token', ['role-vendor'])->plainTextToken;
+
+        return response()->json($vendor);
     }
+
 
     public function register(Request $request)
     {
