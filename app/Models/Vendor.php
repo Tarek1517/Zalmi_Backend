@@ -32,10 +32,10 @@ class Vendor extends Authenticatable
         return $this->attributes['avatar'] ?? '/dummy/avatar.png';
     }
 
-    // public function shop()
-    // {
-    //     return $this->morphOne(Shop::class, 'seller');
-    // }
+    public function shop()
+    {
+        return $this->morphOne(Shop::class, 'vendor');
+    }
 
     // public function products(): HasMany
     // {
