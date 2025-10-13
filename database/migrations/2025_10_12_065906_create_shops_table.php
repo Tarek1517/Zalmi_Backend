@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->string('slug');
             $table->string('image')->nullable();
             $table->string('cvrimage')->nullable();
-            $table->string('bio')->nullable();
             $table->string('description')->nullable();
             $table->string('short_description')->nullable();
             $table->enum('type', ['inhouse_shop', 'vendor_shop'])->default('vendor_shop');

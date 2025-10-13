@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/vendor/user', function (Request $request) {
     // Get vendor based on the token
-    $vendor = Vendor::where('api_token', $request->bearerToken())->first();
+    $vendor = Vendor::where('api_token', $request->bearerToken())->with('shop')->first();
 
     if (!$vendor) {
         return response()->json(['message' => 'Vendor not found'], 404);

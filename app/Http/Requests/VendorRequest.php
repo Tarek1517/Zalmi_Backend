@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class VendorRequest extends FormRequest
 {
@@ -22,27 +23,32 @@ class VendorRequest extends FormRequest
      */
     public function rules(): array
     {
+        $vendorId = $this->route('vendor'); // Gets the {vendor} route param, e.g. /v1/vendor/{id}
+
         return [
             'vendorName' => 'nullable|string|max:255',
             'shopName' => 'nullable|string|max:255',
             'licenseNumber' => 'nullable|string|max:100',
             'nid' => 'nullable|string|max:100',
-            'email' => 'nullable|email|max:255|unique:vendors,email,' . $this->route('vendor'),
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('vendors', 'email')->ignore($vendorId),
+            ],
             'phoneNumber' => 'nullable|string|max:30',
-
             'vendor_type' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:2048',
-            'cvrimage' => 'nullable|image|max:2048',
+            'image' => 'nullable|file|mimes:png,jpg,jpeg,webp,avif|max:5120', // 5MB limit (optional)
+            'cvrimage' => 'nullable|file|mimes:png,jpg,jpeg,webp,avif|max:5120',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string|max:1000',
             'type' => 'nullable|in:inhouse_shop,vendor_shop',
             'status' => 'nullable|in:active,inactive,deactivated',
             'order_number' => 'nullable|integer',
-            'old_password' => 'nullable|string|min:6',
-            'password' => 'nullable|string|min:6|confirmed',
+            'old_password' => 'nullable|required_with:new_password',
+            'new_password' => 'nullable',
+            'new_password_confirmation' => 'nullable|same:new_password',
         ];
     }
-
-
 }
 

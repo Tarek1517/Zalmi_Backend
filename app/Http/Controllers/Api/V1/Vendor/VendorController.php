@@ -9,6 +9,7 @@ use App\Http\Resources\VendorResource;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class VendorController extends Controller
 {
@@ -41,7 +42,7 @@ class VendorController extends Controller
      */
     public function show(string $id)
     {
-        $vendorDetails = Vendor::where('id', $id)->first();
+        $vendorDetails = Vendor::with('shop')->findOrFail($id);
         return VendorResource::make($vendorDetails);
     }
 
@@ -56,80 +57,66 @@ class VendorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
 
-        return $request->vendorName;
+    public function update(VendorRequest $request, string $id)
+    {
         $vendor = Vendor::findOrFail($id);
         $validated = $request->validated();
 
-
-        if ($request->filled('password')) {
-
-            if (!Hash::check($request->old_password, $vendor->password)) {
-                return response()->json([
-                    'error' => 'Incorrect old password.',
-                ], 422);
+        if ($request->filled('new_password')) {
+            if (!$request->filled('old_password') || !Hash::check($request->old_password, $vendor->password)) {
+                return response()->json(['error' => 'Incorrect old password.'], 422);
             }
 
-
-            if ($request->password !== $request->confirm_password) {
-                return response()->json([
-                    'error' => 'Password confirmation does not match.',
-                ], 422);
-            }
-
-            $validated['password'] = bcrypt($request->password);
+            $validated['password'] = bcrypt($request->new_password);
         }
 
+
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('vendors/images', 'public');
+            $validated['image'] = $request->file('image')->store('uploads', 'public');
         }
 
         if ($request->hasFile('cvrimage')) {
-            $validated['cvrimage'] = $request->file('cvrimage')->store('vendors/covers', 'public');
+            $validated['cvrimage'] = $request->file('cvrimage')->store('uploads', 'public');
         }
 
+        $vendor->update(array_filter($validated, fn($value) => $value !== null));
 
-        $vendor->update([
-            'vendor_type' => $validated['vendor_type'] ?? $vendor->vendor_type,
-            'vendorName' => $validated['vendorName'] ?? $vendor->vendorName,
-            'nid' => $validated['nid'] ?? $vendor->nid,
-            'email' => $validated['email'] ?? $vendor->email,
-            'licenseNumber' => $validated['licenseNumber'] ?? $vendor->licenseNumber,
-            'detail' => $validated['detail'] ?? $vendor->detail,
-            'type' => $validated['type'] ?? $vendor->type,
-            'status' => $validated['status'] ?? $vendor->status,
-            'order_number' => $validated['order_number'] ?? $vendor->order_number,
-            'phoneNumber' => $validated['phoneNumber'] ?? $vendor->phoneNumber,
-            'image' => $validated['image'] ?? $vendor->image,
-            'cvrimage' => $validated['cvrimage'] ?? $vendor->cvrimage,
-            'password' => $validated['password'] ?? $vendor->password,
-        ]);
-
-
-        $shopData = [
-            'vendor_id' => $vendor->id,
-            'shopName' => $validated['shopName'] ?? null,
-            'store_url' => $validated['store_url'] ?? null,
-            'short_description' => $validated['short_description'] ?? null,
-            'description' => $validated['description'] ?? null,
-            'slug' => isset($validated['shopName'])
-                ? Str::slug($validated['shopName'])
-                : ($vendor->shop->slug ?? null),
+        $shopFields = [
+            'shopName',
+            'vendor_type',
+            'image',
+            'cvrimage',
+            'store_url',
+            'short_description',
+            'description',
+            'order_number',
         ];
 
-        $vendor->shop()->updateOrCreate(
-            ['vendor_id' => $vendor->id],
-            $shopData
-        );
+        $shopData = [];
+        foreach ($shopFields as $field) {
+            if (array_key_exists($field, $validated)) {
+                $shopData[$field] = $validated[$field];
+            }
+        }
+
+        if (!empty($shopData)) {
+            $shopData['vendor_id'] = $vendor->id;
+            if (isset($shopData['shopName'])) {
+                $shopData['slug'] = Str::slug($shopData['shopName']);
+            }
+
+            $vendor->shop()->updateOrCreate(
+                ['vendor_id' => $vendor->id],
+                $shopData
+            );
+        }
 
         return response()->json([
             'message' => 'Vendor and shop updated successfully',
-            'vendor' => $vendor->fresh(['shop']),
+            'vendor' => $vendor->fresh('shop'),
         ]);
     }
-
 
     /**
      * Remove the specified resource from storage.

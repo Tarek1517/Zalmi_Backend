@@ -25,6 +25,17 @@ class Shop extends Model
         'order_number',
     ];
 
+    protected $appends = ['image_url', 'cvrimage_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? env('APP_URL') . '/storage/' . $this->image : null;
+    }
+
+    public function getCvrimageUrlAttribute()
+    {
+        return $this->cvrimage ? env('APP_URL') . '/storage/' . $this->cvrimage : null;
+    }
     protected static function boot()
     {
         parent::boot();
@@ -48,9 +59,11 @@ class Shop extends Model
         $original = $slug;
         $count = 2;
 
-        while (self::where('slug', $slug)
-            ->when($id, fn($q) => $q->where('id', '!=', $id))
-            ->exists()) {
+        while (
+            self::where('slug', $slug)
+                ->when($id, fn($q) => $q->where('id', '!=', $id))
+                ->exists()
+        ) {
             $slug = "{$original}-{$count}";
             $count++;
         }

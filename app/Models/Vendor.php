@@ -34,16 +34,7 @@ class Vendor extends Authenticatable
 
     public function shop()
     {
-        return $this->morphOne(Shop::class, 'vendor');
+        return $this->hasMany(Shop::class, 'vendor_id');
     }
 
-    // public function products(): HasMany
-    // {
-    //     return $this->hasMany(Product::class, 'created_by', 'id');
-    // }
-
-    // public function orders(): HasMany
-    // {
-    //     return $this->hasMany(Order::class, 'seller_id', 'id');
-    // }
 }
