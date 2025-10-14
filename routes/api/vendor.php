@@ -18,8 +18,8 @@ Route::middleware('auth:sanctum')->get('/vendor/user', function (Request $reques
     return response()->json($vendor);
 });
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/vendor/login', [AuthController::class, 'login']);
+Route::post('/vendor/register', [AuthController::class, 'register']);
 
 Route::prefix('v1')->group(function () {
 

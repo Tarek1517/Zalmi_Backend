@@ -34,6 +34,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api/vendor.php'));
 
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api/admin.php'));
+
 
             // Add Sanctum CSRF route here
             Route::middleware('api')
