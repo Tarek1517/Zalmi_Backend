@@ -10,6 +10,8 @@ use App\Http\Resources\CategoryParentResource;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class CategoryController extends Controller
 {
@@ -50,7 +52,7 @@ class CategoryController extends Controller
     public function stats()
     {
         $total = Category::count();
-        $active = Category::where('status', 'active')->count();
+        $active = Category::where('status', '1')->count();
 
         return response()->json([
             'total' => $total,
@@ -129,6 +131,16 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        if ($category) {
+            $banner = $category->banner;
+            if ($banner) {
+                $bannerPath = str_replace('/storage', 'public', $banner);
+                Storage::delete($bannerPath);
+            }
+            $category->delete();
+
+            return Response::HTTP_OK;
+        }
     }
 }
