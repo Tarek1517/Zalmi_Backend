@@ -24,7 +24,7 @@ class CategoryController extends Controller
 
         $query = Category::query()
             ->where('parent_id', 0) // only top-level categories
-            ->with('children');
+            ->with('children', 'products');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -43,6 +43,7 @@ class CategoryController extends Controller
     {
         $categories = Category::query()
             ->where('parent_id', 0)
+            ->where('status', 1)
             ->with('children')
             ->get();
 
@@ -53,11 +54,11 @@ class CategoryController extends Controller
     {
         $total = Category::count();
         $active = Category::where('status', '1')->count();
-
+        $withProducts = Category::query()->whereHas('products')->count();
         return response()->json([
             'total' => $total,
             'active' => $active,
-
+            'with_products' => $withProducts,
         ]);
     }
 
@@ -113,7 +114,7 @@ class CategoryController extends Controller
             $data['slug'] = Str::slug($data['name']);
         }
         if ($request->hasFile('banner')) {
-            // Delete old file if it exists
+        
             if ($category->banner && Storage::disk('public')->exists($category->banner)) {
                 Storage::disk('public')->delete($category->banner);
             }

@@ -9,19 +9,14 @@ class Brand extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'description',
-        'website',
-        'logo',
-        'established_year',
-        'status',
-        'featured',
-    ];
+    protected $guarded = ['id'];
 
-    protected $casts = [
-        'featured' => 'boolean',
-    ];
+    protected $appends = ['logo_url'];
+
+    public function getLogoUrlAttribute()
+    {
+        return $this->logo ? env('APP_URL') . '/storage/' . $this->logo : null;
+    }
 
     // Optional: relationship if you link brands with products later
     public function products()

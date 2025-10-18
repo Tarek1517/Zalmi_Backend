@@ -9,6 +9,9 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Symfony\Component\HttpFoundation\Response;
+
 
 
 class ProductController extends Controller
@@ -16,9 +19,22 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = (string) $request->query('search', '');
+
+        $products = Product::query()
+            ->with('category:id,name', 'vendor:id,vendorName', 'brand:id,name',)
+            ->when($search, function ($query, $search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            })
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10);
+
+        return ProductResource::collection($products);
     }
 
     /**
@@ -37,6 +53,9 @@ class ProductController extends Controller
         $data = $request->validated();
         $data['slug'] = Str::slug($data['title']);
         $data['sku'] = Str::random(10);
+        if (isset($data['key_features'])) {
+            $data['key_features'] = json_encode($data['key_features']);
+        }
         $filePrefix = $data['slug'];
         $width = 500;
         $height = 530;
@@ -71,9 +90,20 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        //
+        $product = Product::where('slug', $slug)
+            ->with('images')
+            ->first();
+
+        if (!$product) {
+            abort(404, 'Product not found');
+        }
+        if ($product->key_features) {
+            $product->key_features = json_decode($product->key_features);
+        }
+
+        return ProductResource::make($product);
     }
 
     /**
@@ -89,14 +119,104 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $product = Product::find($id);
+        $data = $request->all();
+        if (isset($data['key_features'])) {
+            $data['key_features'] = json_encode($data['key_features']);
+        }
+        $filePrefix = $product->slug;
+        $width = 500;
+        $height = 530;
+        $quality = 50;
+
+        // update cover image
+        if ($request->hasFile('cover_image')) {
+            if ($product->cover_image) {
+                if (File::exists(storage_path($product->cover_image))) {
+                    File::delete(storage_path($product->cover_image));
+                }
+            }
+            $data['cover_image'] = uploadFile(
+
+                $request->file('cover_image'),
+                $filePrefix,
+                $width,
+                $height,
+                $quality
+            );
+        }
+
+        $product->update($data);
+
+
+        //save product images
+        if (isset($data['newImages'])) {
+            $files = $data['newImages'];
+            $uploadedFiles = multipleFileUpload(
+                $files,
+                $filePrefix,
+                $width,
+                $height,
+                $quality
+            );
+            $imageData = array_map(function ($filePath) use ($product) {
+                return [
+                    'url' => $filePath,
+                    'product_id' => $product->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }, $uploadedFiles);
+            if (!empty($imageData)) {
+                ProductImage::insert($imageData);
+            }
+        }
+
+        return ProductResource::make($product);
+
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+        if ($product) {
+            if ($product->cover_image) {
+                if (File::exists(public_path($product->cover_image))) {
+                    File::delete(public_path($product->cover_image));
+                }
+            }
+            if ($product->hover_image) {
+                if (File::exists(public_path($product->hover_image))) {
+                    File::delete(public_path($product->hover_image));
+                }
+            }
+            if ($product->images) {
+                foreach ($product->images as $image) {
+                    if (File::exists(public_path($image->url))) {
+                        File::delete(public_path($image->url));
+                    }
+                    $image->delete();
+                }
+            }
+            $product->delete();
+            return Response::HTTP_OK;
+        }
+    }
+
+    public function deleteImage(string $id)
+    {
+        $image = ProductImage::findOrFail($id);
+        if ($image) {
+            if (File::exists(public_path($image->url))) {
+                File::delete(public_path($image->cover_image));
+            }
+            $image->delete();
+
+            return Response::HTTP_OK;
+        }
     }
 }

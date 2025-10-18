@@ -13,7 +13,7 @@ class ProductImage extends Model
     protected $appends = ['image_url'];
     public function getImageUrlAttribute()
     {
-        return $this->url ? env('APP_URL') . $this->url : null;
+        return $this->url ? env('APP_URL') . '/storage/' . $this->url : null;
     }
 
     public function product(): BelongsTo

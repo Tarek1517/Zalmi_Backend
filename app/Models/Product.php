@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -44,7 +46,7 @@ class Product extends Model
     protected $appends = ['cover_image_url'];
     public function getCoverImageUrlAttribute()
     {
-        return $this->cover_image ? env('APP_URL') . $this->cover_image : null;
+        return $this->cover_image ? env('APP_URL') . '/storage/' . $this->cover_image : null;
     }
 
     protected static function booted()
@@ -70,5 +72,10 @@ class Product extends Model
     public function brand()
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class);
     }
 }

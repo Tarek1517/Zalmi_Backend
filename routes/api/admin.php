@@ -1,6 +1,7 @@
 <?php
 
 use \App\Http\Controllers\Api\V1\Admin\CategoryController;
+use \App\Http\Controllers\Api\V1\Admin\BrandController;
 use App\Http\Controllers\Auth\Admin\AuthController;
 
 use Illuminate\Http\Request;
@@ -24,9 +25,11 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/parent/category', [CategoryController::class, 'getParent']);
     Route::get('/category/stats', [CategoryController::class, 'stats']);
+    Route::get('/brand/stats', [BrandController::class, 'stats']);
 
     Route::apiResources([
         'category' => CategoryController::class,
+        'brand' => BrandController::class,
     ]);
 
 });

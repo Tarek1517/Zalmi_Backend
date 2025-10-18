@@ -23,6 +23,7 @@ Route::post('/vendor/login', [AuthController::class, 'login']);
 Route::post('/vendor/register', [AuthController::class, 'register']);
 
 Route::prefix('v1')->group(function () {
+    Route::get('/delete-product-image/{id}', [ProductController::class, 'deleteImage']);
 
     Route::apiResources([
         'vendor' => VendorController::class,
