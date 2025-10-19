@@ -8,9 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->get('/vendor/user', function (Request $request) {
-    // Get vendor based on the token
-    $vendor = Vendor::where('api_token', $request->bearerToken())->with('shop')->first();
+Route::middleware(['auth:sanctum'])->get('/vendor/user', function (Request $request) {
+    $vendor = $request->user()->load('shop'); // loads related shops
 
     if (!$vendor) {
         return response()->json(['message' => 'Vendor not found'], 404);
@@ -19,10 +18,12 @@ Route::middleware('auth:sanctum')->get('/vendor/user', function (Request $reques
     return response()->json($vendor);
 });
 
+
+
 Route::post('/vendor/login', [AuthController::class, 'login']);
 Route::post('/vendor/register', [AuthController::class, 'register']);
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum',  'ability:role-vendor'])->group(function () {
     Route::get('/delete-product-image/{id}', [ProductController::class, 'deleteImage']);
 
     Route::apiResources([

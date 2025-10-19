@@ -17,6 +17,7 @@ class ProductRequest extends FormRequest
             'vendor_id' => 'required|exists:vendors,id',
             'category_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
+            'shop_id' => 'nullable|exists:shops,id',
             'title' => 'required|string|max:255',
             'sku' => 'nullable|string|max:255|unique:products,sku,' . $this->route('product'),
             'price' => 'required|numeric|min:0',

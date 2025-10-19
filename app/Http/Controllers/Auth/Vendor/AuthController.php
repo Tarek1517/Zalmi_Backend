@@ -25,7 +25,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $vendor = Vendor::where('email', $request->email)->with('shop')->first();
+        $vendor = Vendor::where('email', $request->email)->where('status', 'approved')->with('shop')->first();
 
         if (!$vendor || !Hash::check($request->password, $vendor->password)) {
             throw ValidationException::withMessages([

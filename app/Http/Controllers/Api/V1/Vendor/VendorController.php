@@ -40,11 +40,17 @@ class VendorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+
+
+    public function show(Request $request)
     {
-        $vendorDetails = Vendor::with('shop')->findOrFail($id);
-        return VendorResource::make($vendorDetails);
+        $vendor = $request->user()->load('shop');
+        if (!$vendor || $vendor->status !== 'approved') {
+            return response()->json(['message' => 'Vendor not found or not approved'], 404);
+        }
+        return VendorResource::make($vendor);
     }
+
 
     /**
      * Show the form for editing the specified resource.

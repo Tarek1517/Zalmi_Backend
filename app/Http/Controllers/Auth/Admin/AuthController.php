@@ -25,7 +25,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $admin->createToken('admin', ['role:admin'])->plainTextToken;
+        $token = $admin->createToken('admin', ['role-admin'])->plainTextToken;
 
         return response()->json([
             'user' => $admin,

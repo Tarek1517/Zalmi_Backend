@@ -2,26 +2,29 @@
 
 use \App\Http\Controllers\Api\V1\Admin\CategoryController;
 use \App\Http\Controllers\Api\V1\Admin\BrandController;
+use \App\Http\Controllers\Api\V1\Admin\VendorApprovalController;
 use App\Http\Controllers\Auth\Admin\AuthController;
 
 use Illuminate\Http\Request;
 use App\Models\Admin;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->get('/admin/user', function (Request $request) {
-    // Get vendor based on the token
-    $vendor = Admin::where('api_token', $request->bearerToken())->first();
 
-    if (!$vendor) {
-        return response()->json(['message' => 'Vendor not found'], 404);
+Route::middleware('auth:sanctum')->get('/admin/user', function (Request $request) {
+    // Get the authenticated admin
+    $admin = $request->user(); // Sanctum automatically resolves the user from the token
+
+    if (!$admin) {
+        return response()->json(['message' => 'Admin not found'], 404);
     }
 
-    return response()->json($vendor);
+    return response()->json($admin);
 });
+
 
 Route::post('/admin/login', [AuthController::class, 'login']);
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-admin'])->group(function () {
 
     Route::get('/parent/category', [CategoryController::class, 'getParent']);
     Route::get('/category/stats', [CategoryController::class, 'stats']);
@@ -30,6 +33,7 @@ Route::prefix('v1')->group(function () {
     Route::apiResources([
         'category' => CategoryController::class,
         'brand' => BrandController::class,
+        'vendorApproval' => VendorApprovalController::class,
     ]);
 
 });

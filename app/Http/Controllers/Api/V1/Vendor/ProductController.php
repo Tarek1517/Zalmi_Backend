@@ -11,7 +11,7 @@ use App\Models\ProductImage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpFoundation\Response;
-
+use Illuminate\Support\Facades\Auth;
 
 
 class ProductController extends Controller
@@ -21,10 +21,12 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user()->shop->first();
         $search = (string) $request->query('search', '');
 
         $products = Product::query()
-            ->with('category:id,name', 'vendor:id,vendorName', 'brand:id,name',)
+            ->where('shop_id', $user->id)
+            ->with('category:id,name', 'vendor:id,vendorName', 'brand:id,name', )
             ->when($search, function ($query, $search) {
                 $query->where('title', 'like', "%{$search}%")
                     ->orWhereHas('category', function ($q) use ($search) {
