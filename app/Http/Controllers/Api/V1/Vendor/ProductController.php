@@ -21,12 +21,23 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user()->shop->first();
+        $user = Auth::user();
+
+        // Check if user has a shop
+        $shop = $user->shop->first();
+
+        if (!$shop) {
+            return response()->json([
+                'message' => 'No store found. Please add a store first.',
+                'data' => []
+            ], 404);
+        }
+
         $search = (string) $request->query('search', '');
 
         $products = Product::query()
-            ->where('shop_id', $user->id)
-            ->with('category:id,name', 'vendor:id,vendorName', 'brand:id,name', )
+            ->where('shop_id', $shop->id)
+            ->with('category:id,name', 'vendor:id,vendorName', 'brand:id,name')
             ->when($search, function ($query, $search) {
                 $query->where('title', 'like', "%{$search}%")
                     ->orWhereHas('category', function ($q) use ($search) {

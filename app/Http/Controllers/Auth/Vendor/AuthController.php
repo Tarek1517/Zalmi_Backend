@@ -47,11 +47,11 @@ class AuthController extends Controller
             'password' => 'required|min:8|max:20',
             'shopName' => 'nullable|string',
             'vendorName' => 'required|string',
-            'licenseNumber' => 'required|string',
+            'licenseNumber' => 'nullable|string',
             'termsAccepted' => 'required',
             'email' => 'required|string|email|unique:vendors,email',
             'documents' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf,doc,docx|max:10240',
-            'nid' => 'required|integer',
+            'nid' => 'nullable|integer',
         ]);
 
         $documents = null;
