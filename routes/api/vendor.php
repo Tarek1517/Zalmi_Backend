@@ -27,11 +27,9 @@ Route::post('/vendor/register', [AuthController::class, 'register']);
 
 Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-vendor'])->group(function () {
     Route::get('/delete-product-image/{id}', [ProductController::class, 'deleteImage']);
-    Route::get('/parent/category', [CategoryController::class, 'getParent']);
-    Route::get('/category/stats', [CategoryController::class, 'stats']);
-    Route::get('/brand/stats', [BrandController::class, 'stats']);
-    Route::get('/brand', [BrandController::class, 'index']);
-    
+    Route::get('/parent/categories', [CategoryController::class, 'getParent']);
+    Route::get('/brands', [BrandController::class, 'index']);
+
     Route::apiResources([
         'vendor' => VendorController::class,
         'product' => ProductController::class,
