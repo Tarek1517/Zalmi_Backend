@@ -8,7 +8,7 @@ class City extends Model
 {
    protected $guarded = ['id'];
 
-	public function area()
+	public function areas()
 	{
 		return $this->hasMany(Area::class);
 	}
