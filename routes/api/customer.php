@@ -9,10 +9,13 @@ Route::post('/register', [\App\Http\Controllers\Auth\Customer\AuthController::cl
 Route::post('/verify-otp', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'verifyOtp']);
 Route::post('/resend-otp', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'resendOtp']);
 Route::post('/resend-otp', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'resendOtp']);
+
 //mail
 Route::post('/send-email-otp', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'sendemailotp']);
 Route::post('/check-email-otp', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'checkemailotp']);
 Route::post('/reset-password', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'resetpassword']);
+
+Route::apiResource('order', App\Http\Controllers\Api\V1\Frontend\OrderController::class)->only(['index', 'show', 'store'])->middleware('auth:sanctum');
 
 Route::get('/user', function (Request $request) {
     return $request->user();

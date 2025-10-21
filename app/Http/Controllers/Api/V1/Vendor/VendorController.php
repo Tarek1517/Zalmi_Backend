@@ -64,20 +64,20 @@ class VendorController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(VendorRequest $request, string $id)
+    public function update(VendorRequest $request, Vendor $vendor)
     {
-        $vendor = Vendor::findOrFail($id);
         $validated = $request->validated();
 
         if ($request->filled('new_password')) {
             if (!$request->filled('old_password') || !Hash::check($request->old_password, $vendor->password)) {
                 return response()->json(['error' => 'Incorrect old password.'], 422);
             }
-
-            $validated['password'] = bcrypt($request->new_password);
+            $validated['password'] = Hash::make($request->new_password);
         }
 
-
+        if ($request->hasFile('documents')) {
+            $validated['documents'] = $request->file('documents')->store('public/documents');
+        }
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('uploads', 'public');
         }
@@ -86,7 +86,23 @@ class VendorController extends Controller
             $validated['cvrimage'] = $request->file('cvrimage')->store('uploads', 'public');
         }
 
-        $vendor->update(array_filter($validated, fn($value) => $value !== null));
+        $profileFields = [
+            'vendorName',
+            'email',
+            'phoneNumber',
+            'password',
+            'licenseNumber',
+            'nid',
+            'type',
+            'documents',
+            'status'
+        ];
+
+        $vendorData = array_intersect_key($validated, array_flip($profileFields));
+
+        if (!empty($vendorData)) {
+            $vendor->update($vendorData);
+        }
 
         $shopFields = [
             'shopName',
@@ -99,16 +115,15 @@ class VendorController extends Controller
             'order_number',
         ];
 
-        $shopData = [];
-        foreach ($shopFields as $field) {
-            if (array_key_exists($field, $validated)) {
-                $shopData[$field] = $validated[$field];
-            }
-        }
+        $shopData = array_intersect_key($validated, array_flip($shopFields));
 
         if (!empty($shopData)) {
+
             $shopData['vendor_id'] = $vendor->id;
-            if (isset($shopData['shopName'])) {
+            $shopData['vendor_type'] = $shopData['vendor_type'] ?? 'general';
+            $shopData['shopName'] = $shopData['shopName'] ?? $vendor->vendorName ?? 'Default Shop';
+
+            if (!empty($shopData['shopName'])) {
                 $shopData['slug'] = Str::slug($shopData['shopName']);
             }
 
@@ -119,10 +134,12 @@ class VendorController extends Controller
         }
 
         return response()->json([
-            'message' => 'Vendor and shop updated successfully',
+            'message' => 'Vendor and/or shop updated successfully',
             'vendor' => $vendor->fresh('shop'),
         ]);
     }
+
+
 
     /**
      * Remove the specified resource from storage.

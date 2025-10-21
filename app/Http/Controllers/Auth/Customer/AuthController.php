@@ -26,14 +26,14 @@ class AuthController extends Controller
             ]);
         }
         $token = $customer->createToken('customer', ['role:customer'])->plainTextToken;
-        if ($customer->is_verified === 0) {
-            return response()->json([
-                'message' => 'Please verify your email',
-                'status' => 403,
-                'user' => $customer,
-                'token' => $token
-            ]);
-        }
+        // if ($customer->is_verified === 0) {
+        //     return response()->json([
+        //         'message' => 'Please verify your email',
+        //         'status' => 403,
+        //         'user' => $customer,
+        //         'token' => $token
+        //     ]);
+        // }
         return response()->json([
             'user' => $customer,
             'token' => $token

@@ -3,6 +3,7 @@
 use \App\Http\Controllers\Api\V1\Admin\CategoryController;
 use \App\Http\Controllers\Api\V1\Admin\BrandController;
 use \App\Http\Controllers\Api\V1\Admin\VendorApprovalController;
+use \App\Http\Controllers\Api\V1\Admin\ProductsController;
 use App\Http\Controllers\Auth\Admin\AuthController;
 
 use Illuminate\Http\Request;
@@ -27,12 +28,17 @@ Route::post('/admin/login', [AuthController::class, 'login']);
 Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-admin'])->group(function () {
 
     Route::get('/parent/category', [CategoryController::class, 'getParent']);
+    Route::post('/vendorApproval/{id}/approve', [VendorApprovalController::class, 'approve']);
+    Route::post('/vendorApproval/{id}/reject', [VendorApprovalController::class, 'reject']);
     Route::get('/category/stats', [CategoryController::class, 'stats']);
     Route::get('/brand/stats', [BrandController::class, 'stats']);
+    Route::put('/vendorStatusUpdate/{id}', [VendorApprovalController::class, 'toggleStatus']);
+
 
     Route::apiResources([
         'category' => CategoryController::class,
         'brand' => BrandController::class,
+        'products' => ProductsController::class,
         'vendorApproval' => VendorApprovalController::class,
     ]);
 

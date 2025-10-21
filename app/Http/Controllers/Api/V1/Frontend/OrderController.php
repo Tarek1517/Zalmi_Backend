@@ -32,10 +32,8 @@ class OrderController extends Controller
     public function store(OrderRequest $request)
     {
         $data = $request->validated();
-        $data = $request->validated();
-		return $data;
-
-		$data['user_id'] = $request->user->id;
+      
+		$data['user_id'] = $request->user()->id;
 		$data['order_code'] =  rand(10000000, 99999999);
 
 		$combinedOrder = CombinedOrder::create($data);
@@ -56,7 +54,7 @@ class OrderController extends Controller
 					'seller_balance' => 0,
 					'admin_balance'  => 0,
 					'order_status'   => 'pending',
-					'payment_status' => $data['payment_status'],
+					'payment_status' => 'pending',
 				]);
 			}
 			$itemPrice = $item['price'];
@@ -80,6 +78,7 @@ class OrderController extends Controller
 
 			$totalPrice = $itemPrice * $itemQty;
 			OrderDetail::create([
+				'combined_order_id' => $combinedOrder->id,
 				'order_id'   => $shopOrders[$shopId]->id,
 				'product_id' => $item['id'],
 				'price'      => $itemPrice,
@@ -89,7 +88,7 @@ class OrderController extends Controller
             $shopOrders[$shopId]->grand_total += $totalPrice + $data['shipping_charge'];
 			$adminEarningsAmount = ($totalPrice * $commissionRate) / 100;
 			$vendorEarningsAmount = $totalPrice - $adminEarningsAmount;
-			$shopOrders[$shopId]->seller_balance += $vendorEarningsAmount;
+			$shopOrders[$shopId]->vendor_balance += $vendorEarningsAmount;
 			$shopOrders[$shopId]->admin_balance += $adminEarningsAmount;
 
 			if (!isset($vendorEarnings[$shopId])) {
@@ -102,11 +101,11 @@ class OrderController extends Controller
 		}
 
 		if ($data['payment_method'] === 'sslcommerz') {
-			$paymentResponse = $paymentService->initiatePayment($data);
-			if (isset($paymentResponse['status']) && $paymentResponse['status'] == 'fail') {
-				return response()->json(['message' => 'Payment initiation failed'], 400);
-			}
-			return response()->json(json_decode($paymentResponse, true));
+			// $paymentResponse = $paymentService->initiatePayment($data);
+			// if (isset($paymentResponse['status']) && $paymentResponse['status'] == 'fail') {
+			// 	return response()->json(['message' => 'Payment initiation failed'], 400);
+			// }
+			// return response()->json(json_decode($paymentResponse, true));
 		}
 
 
