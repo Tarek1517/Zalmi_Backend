@@ -1,6 +1,8 @@
 <?php
 
 use \App\Http\Controllers\Api\V1\Admin\CategoryController;
+use \App\Http\Controllers\Api\V1\Admin\AreaController;
+use \App\Http\Controllers\Api\V1\Admin\CityController;
 use \App\Http\Controllers\Api\V1\Admin\BrandController;
 use \App\Http\Controllers\Api\V1\Admin\VendorApprovalController;
 use \App\Http\Controllers\Api\V1\Admin\ProductsController;
@@ -40,6 +42,8 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-admin'])->group(f
         'brand' => BrandController::class,
         'products' => ProductsController::class,
         'vendorApproval' => VendorApprovalController::class,
+        'city' => CityController::class,
+        'area' => AreaController::class,
     ]);
 
 });
