@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
+use App\Http\Resources\Frontend\OrderResurce;
 use App\Models\CombinedOrder;
 use App\Models\Order;
 use App\Models\Category;
@@ -20,10 +21,11 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $orders = CombinedOrder::query()
-        ->with('orders','orders.orderDetails')
-        ->where('user_id', $request->user->id)
+        ->with('orderDetails.product:id,title,cover_image')
+        ->where('user_id', $request->user()->id)
         ->get();
-
+		
+		return OrderResurce::collection($orders);
     }
 
     /**

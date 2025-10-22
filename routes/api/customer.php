@@ -16,6 +16,7 @@ Route::post('/check-email-otp', [\App\Http\Controllers\Auth\Customer\AuthControl
 Route::post('/reset-password', [\App\Http\Controllers\Auth\Customer\AuthController::class, 'resetpassword']);
 
 Route::apiResource('order', App\Http\Controllers\Api\V1\Frontend\OrderController::class)->only(['index', 'show', 'store'])->middleware('auth:sanctum');
+Route::apiResource('address', App\Http\Controllers\Api\V1\Frontend\CustomerAddressController::class)->middleware('auth:sanctum');
 
 Route::get('/user', function (Request $request) {
     return $request->user();
