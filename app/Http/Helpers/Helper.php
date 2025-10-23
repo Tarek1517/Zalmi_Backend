@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\File;
 
 
 
-// if (!function_exists('getSetting')) {
-//     function getSetting($key, $default = null)
-//     {
-//         $setting = Setting::where('key', $key)->first();
-//         return $setting == null ? $default : $setting->value;
-//     }
-// }
+if (!function_exists('getSetting')) {
+    function getSetting($key, $default = null)
+    {
+        $setting = Setting::where('key', $key)->first();
+        return $setting == null ? $default : $setting->value;
+    }
+}
 
 if (!function_exists('uploadFile')) {
     function uploadFile($file, $fileNamePrefix, $resizeWidth = null, $resizeHeight = null, $quality = 90)

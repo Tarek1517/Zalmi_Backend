@@ -25,6 +25,7 @@ class CustomerAddressResource extends JsonResource
             'area_id' => $this->area_id,
             'city_name' => $this->city->name,
             'area_name' => $this->area->name,
+            'delivery_charge' => $this->city->delivery_charge,
         ];
     }
 }

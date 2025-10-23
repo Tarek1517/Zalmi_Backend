@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('combined_orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
-            $table->foreignId('area_id')->nullable()->constrained('areas')->nullOnDelete();
+            $table->foreignId('customer_address_id')->nullable()->constrained()->nullOnDelete();
             $table->text('address')->nullable();
             $table->string('order_code')->nullable();
             $table->string('delivery_option')->nullable();

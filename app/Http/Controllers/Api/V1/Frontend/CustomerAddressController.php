@@ -17,6 +17,7 @@ class CustomerAddressController extends Controller
     {
         $address = CustomerAddress::query()
         ->where('user_id', $request->user()->id)
+        ->with('city', 'area')
         ->get();
 
         return CustomerAddressResource::collection($address);

@@ -8,6 +8,7 @@ use App\Http\Resources\Frontend\OrderResurce;
 use App\Models\CombinedOrder;
 use App\Models\Order;
 use App\Models\Category;
+use App\Models\CustomerAddress;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -36,6 +37,21 @@ class OrderController extends Controller
         $data = $request->validated();
       
 		$data['user_id'] = $request->user()->id;
+		$addressId = $data['customer_address_id'];
+		if(!$addressId){
+			$address = CustomerAddress::create([
+				'user_id' => $request->user()->id,
+				'city_id' => $data['city_id'],
+				'area_id' => $data['area_id'],
+				'name' => $data['name'],
+				'phone' => $data['phone'],
+				'email' => $data['email'],
+				'address' => $data['address'],
+				'is_default' => 1,
+			]);
+			$data['customer_address_id'] = $address->id;
+		}
+		
 		$data['order_code'] =  rand(10000000, 99999999);
 
 		$combinedOrder = CombinedOrder::create($data);

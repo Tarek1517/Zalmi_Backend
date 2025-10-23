@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\Api\V1\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Frontend\CategoryResource;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -14,9 +12,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
-    }
 
+    }
 
     /**
      * Display the specified resource.
@@ -24,9 +21,9 @@ class CategoryController extends Controller
     public function show(string $slug)
     {
         $category = Category::query()
-        ->with('products')
-        ->where('slug', $slug)
-        ->first();
+            ->with('products')
+            ->where('slug', $slug)
+            ->first();
 
         return CategoryResource::make($category);
     }
