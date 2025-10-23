@@ -52,13 +52,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function vendor()
+    public function addresses()
     {
-        return $this->hasMany(Vendor::class, 'user_id');
-    }
-
-    public function shop()
-    {
-        return $this->hasOne(\App\Models\Shop::class, 'user_id');
+        return $this->hasMany(CustomerAddress::class, 'user_id');
     }
 }

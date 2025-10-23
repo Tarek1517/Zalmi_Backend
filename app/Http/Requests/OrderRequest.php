@@ -23,18 +23,21 @@ class OrderRequest extends FormRequest
     {
         return [
             'user_id' => 'nullable|exists:users,id',
-			'name' => 'required',
-			'email' => 'nullable|email|regex:/(.+)@(.+)\.(.+)/i|max:255',
+            'name' => 'required',
+            'email' => 'nullable|email|regex:/(.+)@(.+)\.(.+)/i|max:255',
             'phone' => 'required|string',
-			'city_id' => 'required',
-            'area_id' => 'required',
-			'address' => 'required|string|max:255',
-            'sub_total' => 'required',
-            'grand_total' => 'nullable',
-			'shipping_charge' => 'nullable|numeric',
+            'customer_address_id' => 'nullable|exists:customer_addresses,id',
+
+            'city_id' => 'required_without:customer_address_id|nullable|integer|exists:cities,id',
+            'area_id' => 'required_without:customer_address_id|nullable|integer|exists:areas,id',
+            'address' => 'required_without:customer_address_id|nullable|string|max:255',
+
+            'sub_total' => 'required|numeric',
+            'grand_total' => 'nullable|numeric',
+            'shipping_charge' => 'nullable|numeric',
             'payment_method' => 'required|string|max:255',
             'payment_status' => 'nullable|in:paid,pending,cancelled',
-            'order_code' => 'nullable',
+            'order_code' => 'nullable|string|max:255',
             'order_items' => 'required|array',
         ];
     }

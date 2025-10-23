@@ -20,6 +20,9 @@ class ProductListResource extends JsonResource
             'slug' => $this->slug,
             'price' => $this->price,
             'cover_image_url' => $this->cover_image_url, 
+            'vendor_id' => $this->vendor_id,
+            'shop_id' => $this->shop_id,
+            'category_id' => $this->category_id,
         ];
     }
 }
