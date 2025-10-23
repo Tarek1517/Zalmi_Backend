@@ -12,10 +12,10 @@ use \App\Http\Controllers\Api\V1\Admin\ProductsController;
 use \App\Http\Controllers\Api\V1\Admin\VendorApprovalController;
 
 Route::middleware('auth:sanctum')->get('/admin/user', function (Request $request) {
-                               // Get the authenticated admin
+    // Get the authenticated admin
     $admin = $request->user(); // Sanctum automatically resolves the user from the token
 
-    if (! $admin) {
+    if (!$admin) {
         return response()->json(['message' => 'Admin not found'], 404);
     }
 
@@ -33,14 +33,15 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-admin'])->group(f
     Route::get('/brand/stats', [BrandController::class, 'stats']);
     Route::put('/vendorStatusUpdate/{id}', [VendorApprovalController::class, 'toggleStatus']);
     Route::post('/save-header-setting', [SettingController::class, 'saveHeaderSetting']);
-
+    Route::get('/setting', [SettingController::class, 'getAllSetting']);
+    
     Route::apiResources([
-        'category'       => CategoryController::class,
-        'brand'          => BrandController::class,
-        'products'       => ProductsController::class,
+        'category' => CategoryController::class,
+        'brand' => BrandController::class,
+        'products' => ProductsController::class,
         'vendorApproval' => VendorApprovalController::class,
-        'city'           => CityController::class,
-        'area'           => AreaController::class,
+        'city' => CityController::class,
+        'area' => AreaController::class,
     ]);
 
 });
