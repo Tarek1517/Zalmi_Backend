@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('customer_address_id')->nullable()->constrained()->nullOnDelete();
-            $table->text('address')->nullable();
             $table->string('order_code')->nullable();
             $table->string('delivery_option')->nullable();
             $table->string('payment_method')->nullable();

@@ -5,6 +5,7 @@ use \App\Http\Controllers\Api\V1\Vendor\ProductController;
 use \App\Http\Controllers\Api\V1\Admin\CategoryController;
 use \App\Http\Controllers\Api\V1\Admin\BrandController;
 use App\Http\Controllers\Auth\Vendor\AuthController;
+use App\Http\Controllers\Api\V1\Vendor\OrderController;
 
 use Illuminate\Http\Request;
 use App\Models\Vendor;
@@ -33,6 +34,6 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-vendor'])->group(
     Route::apiResources([
         'vendor' => VendorController::class,
         'product' => ProductController::class,
-
+        'order' => OrderController::class,
     ]);
 });
