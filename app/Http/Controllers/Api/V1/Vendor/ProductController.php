@@ -144,19 +144,7 @@ class ProductController extends Controller
 
         // update cover image
         if ($request->hasFile('cover_image')) {
-            if ($product->cover_image) {
-                if (File::exists(storage_path($product->cover_image))) {
-                    File::delete(storage_path($product->cover_image));
-                }
-            }
-            $data['cover_image'] = uploadFile(
-
-                $request->file('cover_image'),
-                $filePrefix,
-                $width,
-                $height,
-                $quality
-            );
+            $data['cover_image'] = $request->file('cover_image')->store('uploads', 'public');
         }
 
         $product->update($data);

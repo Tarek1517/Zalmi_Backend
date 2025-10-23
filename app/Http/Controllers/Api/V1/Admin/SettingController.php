@@ -18,11 +18,11 @@ class SettingController extends Controller
     public function getGlobalSetting()
     {
         //header Categories
-        $categoryIds = json_decode(getSetting('home_categories'));
+        $categoryIds = json_decode(getSetting('home_category'));
         $categories = [];
         if ($categoryIds !== null && count($categoryIds) > 0) {
             $categories = Category::whereIn('id', $categoryIds ?? [])
-                ->with('children')
+                ->with('children', 'products')
                 ->get()
                 ->sortBy(function ($categories) use ($categoryIds) {
                     return array_search($categories->id, $categoryIds);
@@ -99,6 +99,7 @@ class SettingController extends Controller
             'header_categories' => json_decode(getSetting('header_categories')),
             'top_categories' => json_decode(getSetting('top_categories')),
             'home_products' => json_decode(getSetting('home_products')),
+            'home_categories' => json_decode(getSetting('home_categories')),
             'home_blogs' => json_decode(getSetting('home_blogs')),
             'currency' => getSetting('currency'),
             'currency_symbol' => getSetting('currency_symbol'),

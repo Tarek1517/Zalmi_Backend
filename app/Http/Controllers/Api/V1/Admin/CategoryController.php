@@ -50,6 +50,15 @@ class CategoryController extends Controller
         return CategoryParentResource::collection($categories);
     }
 
+    public function getCategories()
+    {
+        $categories = Category::query()
+            ->where('status', 1)
+            ->get();
+
+        return CategoryParentResource::collection($categories);
+    }
+
     public function stats()
     {
         $total = Category::count();
@@ -114,7 +123,7 @@ class CategoryController extends Controller
             $data['slug'] = Str::slug($data['name']);
         }
         if ($request->hasFile('banner')) {
-        
+
             if ($category->banner && Storage::disk('public')->exists($category->banner)) {
                 Storage::disk('public')->delete($category->banner);
             }

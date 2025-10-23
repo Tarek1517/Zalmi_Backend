@@ -23,8 +23,8 @@ class ProductController extends Controller
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('title', 'like', "%{$request->search}%")
-                    ->orWhere('sku', 'like', "%{$request->search}%")
-                    ->orWhere('description', 'like', "%{$request->search}%");
+                        ->orWhere('sku', 'like', "%{$request->search}%")
+                        ->orWhere('description', 'like', "%{$request->search}%");
                 });
             })
             ->when($request->filled('category'), function ($query) use ($request) {
@@ -50,10 +50,27 @@ class ProductController extends Controller
     public function show(string $slug)
     {
         $product = Product::query()
-        ->with('category','images')
-        ->where('slug', $slug)
-        ->first();
+            ->with('category', 'images')
+            ->where('slug', $slug)
+            ->first();
 
         return ProductShowResource::make($product);
+    }
+
+    public function homeProducts()
+    {
+        $productIds = json_decode(getSetting('home_products'));
+        $products = collect();
+
+        if (!empty($productIds)) {
+            $products = Product::whereIn('id', $productIds)
+                ->get()
+                ->sortBy(function ($products) use ($productIds) {
+                    return array_search($products->id, $productIds);
+                })
+                ->values();
+        }
+
+        return ProductListResource::collection($products);
     }
 }

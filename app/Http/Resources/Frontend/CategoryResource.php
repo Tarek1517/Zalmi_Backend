@@ -18,7 +18,11 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'products' => new ProductListResource($this->products),
+            'icon' => $this->icon,
+            'short_description' => $this->short_description,
+            'banner_image_url' => $this->banner_image_url,
+            'products' => ProductListResource::collection($this->products),
+            'children' => CategoryResource::collection($this->whenLoaded('children')),
         ];
     }
 }

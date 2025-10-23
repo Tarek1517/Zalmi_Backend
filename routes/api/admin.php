@@ -27,6 +27,7 @@ Route::post('/admin/login', [AuthController::class, 'login']);
 Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-admin'])->group(function () {
 
     Route::get('/parent/category', [CategoryController::class, 'getParent']);
+    Route::get('/all_category', [CategoryController::class, 'getCategories']);
     Route::post('/vendorApproval/{id}/approve', [VendorApprovalController::class, 'approve']);
     Route::post('/vendorApproval/{id}/reject', [VendorApprovalController::class, 'reject']);
     Route::get('/category/stats', [CategoryController::class, 'stats']);
@@ -34,7 +35,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'ability:role-admin'])->group(f
     Route::put('/vendorStatusUpdate/{id}', [VendorApprovalController::class, 'toggleStatus']);
     Route::post('/save-header-setting', [SettingController::class, 'saveHeaderSetting']);
     Route::get('/setting', [SettingController::class, 'getAllSetting']);
-    
+
     Route::apiResources([
         'category' => CategoryController::class,
         'brand' => BrandController::class,
