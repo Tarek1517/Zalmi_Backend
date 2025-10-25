@@ -21,10 +21,38 @@ class CategoryController extends Controller
         return CategoryListResource::collection($categories);
     }
 
+    public function parentCategory()
+    {
+        $categories = Category::query()
+            ->where('status', 1)
+            ->where('parent_id', 0)
+            ->with('products', 'children')
+            ->get();
+
+        return CategoryListResource::collection($categories);
+    }
+
 
     public function homeCategories()
     {
         $categoryIds = json_decode(getSetting('home_categories'));
+        $categories = collect();
+
+        if (!empty($categoryIds)) {
+            $categories = Category::whereIn('id', $categoryIds)
+                ->get()
+                ->sortBy(function ($category) use ($categoryIds) {
+                    return array_search($category->id, $categoryIds);
+                })
+                ->values();
+        }
+
+        return CategoryListResource::collection($categories);
+    }
+
+    public function headerCategories()
+    {
+        $categoryIds = json_decode(getSetting('header_categories'));
         $categories = collect();
 
         if (!empty($categoryIds)) {
@@ -46,7 +74,11 @@ class CategoryController extends Controller
         $category = null;
         if ($categoryId) {
             $category = Category::where('id', $categoryId)
-                ->with('children', 'products', 'children.products')
+                ->with([
+                    'children',
+                    'children.products.category',
+                    'products.category',
+                ])
                 ->first();
         }
 
@@ -59,7 +91,11 @@ class CategoryController extends Controller
         $category = null;
         if ($categoryId) {
             $category = Category::where('id', $categoryId)
-                ->with('children', 'products', 'children.products')
+                ->with([
+                    'children',
+                    'children.products.category',
+                    'products.category',
+                ])
                 ->first();
         }
 

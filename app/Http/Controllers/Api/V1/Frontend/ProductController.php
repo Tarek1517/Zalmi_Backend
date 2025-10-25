@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Frontend\ProductListResource;
 use App\Http\Resources\Frontend\ProductShowResource;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -17,7 +18,7 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->with('category')
-            ->when($request->filled('featured'), function ($query) use ($request) {
+            ->when($request->filled('featured'), function ($query) {
                 $query->where('featured', 1);
             })
             ->when($request->filled('search'), function ($query) use ($request) {
@@ -27,20 +28,44 @@ class ProductController extends Controller
                         ->orWhere('description', 'like', "%{$request->search}%");
                 });
             })
-            ->when($request->filled('category'), function ($query) use ($request) {
-                $query->whereHas('category', function ($q) use ($request) {
-                    $q->where('slug', $request->category_slug);
-                });
+            ->when($request->filled('category') || $request->filled('parentCategory'), function ($query) use ($request) {
+                $slug = $request->input('category') ?? $request->input('parentCategory');
+
+                // Find the category by slug
+                $category = Category::where('slug', $slug)->first();
+
+                if ($category) {
+                    // Get all category IDs including the category itself and all its children
+                    $categoryIds = $this->getAllCategoryIds($category);
+
+                    $query->whereHas('category', function ($q) use ($categoryIds) {
+                        $q->whereIn('id', $categoryIds);
+                    });
+                }
             })
             ->latest();
 
-        if ($request->boolean('paginate', true)) {
-            $products = $query->paginate($request->input('per_page', 20));
-        } else {
-            $products = $query->get();
-        }
+        $products = $query->get();
 
         return ProductListResource::collection($products);
+    }
+
+    /**
+     * Recursively get all category IDs including the category itself and all children/grandchildren
+     */
+    private function getAllCategoryIds(Category $category)
+    {
+        $ids = [$category->id];
+
+        // Get all direct children
+        $children = Category::where('parent_id', $category->id)->get();
+
+        foreach ($children as $child) {
+            // Recursively get children's IDs
+            $ids = array_merge($ids, $this->getAllCategoryIds($child));
+        }
+
+        return $ids;
     }
 
 
@@ -64,6 +89,7 @@ class ProductController extends Controller
 
         if (!empty($productIds)) {
             $products = Product::whereIn('id', $productIds)
+                ->with('category')
                 ->get()
                 ->sortBy(function ($products) use ($productIds) {
                     return array_search($products->id, $productIds);
